@@ -1,42 +1,46 @@
-// from data.js
-var tableData = data;
+var tableData;
+
 // Get a reference to the table body
 var tbody = d3.select("tbody");
 
-// Console.log the weather data from data.js
-console.log(data);
+// ~~~~ d3 import data from ufo.csv ~~~~
+d3.csv("ufo.csv", function(csvData){
 
-// d3 to map each key value to table row cell
-tableData.forEach((ufo) => {
+  console.log(csvData); // full dataset 
+  tableData = csvData.slice(1,1681); // only picked 1st 1000
+  console.log(tableData); // selected records for DataTable
+  
+  // map each key value to table row cell (generate html table)
+  tableData.forEach((ufo) => {
     var row = tbody.append("tr");
     Object.entries(ufo).forEach(([key, value]) => {
       var cell = row.append("td");
       cell.text(value);
     });
-});
+  });
+
+  // jquery init for datatable with list of options (bind html table with DataTable)
+  $('#ufo-table').DataTable({
+      "select": true,
+      "autoWidth": true,
+      "paging": true,
+      "pagingType": "full_numbers",
+      "scrollY": "500px",
+      "scrollCollapse": false,
+      "pageLength": 10,
+      "lengthMenu": [[10, 50, 100, 500, -1], [10, 50, 100, 500, "All"]],
+      "order": [[ 0, "asc" ]],
+      "stripeClasses": [ 'odd', 'even' ]
+  });
+  $('.dataTables_length').addClass('bs-select');
+  $('.dataTables_length').addClass('rounded');
+
+});  // ~~~~ end d3.csv() import ~~~~
+
 
 // jquery to set active(focus) / inactive(blur) on filter btn-group (radio)
 $(".btn-group > .btn").click(function(){
   $(this).addClass("active").siblings().removeClass("active");
-});
-
-// jquery init for datatable with list of options
-$(document).ready(function () {
-    //$('#ufo-table').DataTable();
-    $('#ufo-table').DataTable({
-        "select": true,
-        "autoWidth": true,
-        "paging": true,
-        "pagingType": "full_numbers",
-        "scrollY": "400px",
-        "scrollCollapse": false,
-        "pageLength": 50,
-        "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
-        "order": [[ 0, "asc" ]],
-        "stripeClasses": [ 'odd', 'even' ]
-    });
-    $('.dataTables_length').addClass('bs-select');
-    $('.dataTables_length').addClass('rounded');
 });
 
 // when user click on the close icon for filter search
@@ -69,7 +73,7 @@ async function search() {
     $('#filter-btn').addClass('hidden');
 
     // add some delay here
-    await sleep(2000);
+    await sleep(1000);
 
     // Loop through all table rows, and hide those who don't match the search query
     for (i = 0; i < tr.length; i++) {
